@@ -3,7 +3,11 @@ Math formulas to render a wacky wheels (mario kart) style game "pixel by pixel"<
 The code is not optimised for speed but left unoptimised as a clear readable example<br/> 
 ![Screenshot](https://github.com/luke-b/wacky-wheels-rendering-math/blob/master/wacky.png "rendering output")<br/>
 [Live demo link](http://studio.sketchpad.cc/Yx1R3KedAV?)<br/>
-Optimized faster and higher-resolution version:
+Optimized faster and higher-resolution version:<br/>
 ![Screenshot](https://github.com/luke-b/wacky-wheels-rendering-math/blob/master/wacky3.png "rendering output")<br/>
 [Live demo link](http://studio.sketchpad.cc/jDUhmlEOTY?)<br/>
+
+Textured version with a simple sinusoid road:<br/>
+![Screenshot](https://github.com/luke-b/wacky-wheels-rendering-math/blob/master/wackyT.png "rendering output")<br/>
+
 

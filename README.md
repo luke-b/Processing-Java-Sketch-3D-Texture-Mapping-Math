@@ -9,5 +9,7 @@ Optimized faster and higher-resolution version:<br/>
 
 Textured version with a simple sinusoid road:<br/>
 ![Screenshot](https://github.com/luke-b/wacky-wheels-rendering-math/blob/master/wackyT.png "rendering output")<br/>
+<br/>
+[Youtube Demo](https://www.youtube.com/watch?v=_yzu__0E67c&feature=youtu.be)<br/>
 
 

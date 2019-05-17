@@ -15,8 +15,7 @@ Photo-realistic textures sideway movement animation:<br/>
 Dummy textures and rotation with 3rd person camera effect (center of rotation in front of the camera)
 [Youtube Demo 2](https://youtu.be/F2NQdulMUCQ)<br/>
 Objects rendering screenshot:<br/>
-![Screenshot](https://github.com/luke-b/wacky-wheels-rendering-math/blob/master/wackyT.png "rendering output")<br/>
-https://github.com/luke-b/wacky-wheels-rendering-math/blob/master/objects-draft1.png "rendering output")<br/>
+![Screenshot](https://github.com/luke-b/wacky-wheels-rendering-math/blob/master/objects-draft1.png "rendering output")<br/>
 <br/>
 [Youtube Demo 3](https://www.youtube.com/watch?v=ICnhRuyOSFY)<br/>
 

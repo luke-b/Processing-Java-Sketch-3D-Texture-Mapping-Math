@@ -2,6 +2,7 @@
 // !textures have to be provided (not included)
 
 float animAngle = 0.0;
+int pixLimit = 640*480;
 PImage spritesImage;
 
 PImage grassImage;
@@ -24,7 +25,7 @@ void setup() {
       o.x = (i % 10)*32;
       o.y = (i / 10)*32;
       o.z = 3027005f; // level with the road 3027035f;
-      o.size = 35f; //px 15;
+      o.size = 32f; //px 15;
       o.spriteIndex = (int)(Math.random()*12*7);
       objects[i] = o;
       
@@ -46,7 +47,7 @@ void draw2dSprite(int screenX,
      
      float xStep = 32f/screenSize;
      
-     for (int i = 0; i < 1; i++) {
+     for (int i = 0; i < pixelSize; i++) {
        
         drawStrip(screenX+i,
                   screenY+pixelSize,
@@ -76,27 +77,27 @@ void drawStrip(int screenX,
 
     if (screenX < 0) return;
     if (screenX >= 640) return;
-    if (screenY >= 480) return;
-                 
+                  
     int pixelHeight = (int)screenHeight;
     float textureStep = textureHeight/screenHeight;
     float texYPosition = textureY; 
     int screenIndex = screenY*640+screenX;
     int texXOffset = (int)textureX;
-    
     int pixel;
-                 
-    for (int i = 0; i < pixelHeight; i++) {
-      if (screenIndex >= 0 && screenIndex < 640*480) {
+               
+    for (int i = 1; i < pixelHeight; i++) {
+        texYPosition -= textureStep;
+      if (screenIndex >= 0 && screenIndex < pixLimit) {
+        
         pixel = texture[(int)(texYPosition)*textureXRes+texXOffset];
+        
         if (alpha(pixel) > 100) {
             pixels[screenIndex] = pixel;
         }
       }
-      texYPosition -= textureStep;
+    
       screenIndex -= 640;
     }
-                 
 }
                
 void drawObject(int screenx,
@@ -143,35 +144,37 @@ void projectObjects(float cameraX,
                     float cameraY,
                     float cameraZ,
                     float cameraFocalDistance,
-                    float cameraAngle,
                     float cameraFocalRange,
-                    float cameraFocalRangeY) {
+                    float cameraFocalRangeY,
+                    float cos,
+                    float sin) {
  
-  float cos = (float)(Math.cos(cameraAngle));
-  float sin = (float)(Math.sin(cameraAngle));
-            
-   DisplayObject o;
+  DisplayObject o;
                
   for (int i = 0; i < objects.length; i++) {
    
     o = objects[i];
-    o.px = cos*( o.x - cameraY) - sin*( o.y - cameraX);  // rotate by camera angle - camera X and Y switched intentionally ...
-    o.py = sin*( o.x - cameraY) + cos*( o.y - cameraX);
+    o.px = cos * ( o.x - cameraY ) - sin * ( o.y - cameraX );  // rotate by camera angle - camera X and Y switched intentionally ...
+    o.py = sin * ( o.x - cameraY ) + cos * ( o.y - cameraX );
     o.debugx = (int)o.px;
     o.debugy = (int)o.py;
     
     if (o.py > 0) { // in front of the camera = visible (o.drawOrder != -1)
 
-      o.sx = ((o.px * cameraFocalDistance) / o.py) + cameraFocalRange;  // project 3d coords to 2d screen coords
-      o.sy = ((cameraZ - o.z) * cameraFocalDistance) / o.py;
-      o.psize = (o.size * cameraFocalDistance) / o.py;
+      o.sx = (( o.px * cameraFocalDistance ) / o.py) + cameraFocalRange;  // project 3d coords to 2d screen coords
+      o.sy = (( cameraZ - o.z ) * cameraFocalDistance ) / o.py;
+      o.psize = ( o.size * cameraFocalDistance ) / o.py;
+      
       o.drawOrder = (int)o.sy; // row to be drawn with
       o.sy += cameraFocalRangeY;
       
-    } else { // behind the camera = not drawn
+     
+      
+    } else { // behind the camera 
       o.drawOrder = -1; // mark invisible
     }
   }
+ 
 }
 
 int bufSize = 640*480;
@@ -196,14 +199,13 @@ void drawDebugMap() {
   
 }
 
-
-
-
 void drawObjectsForRow(int row) {
   
   DisplayObject o = null;
+  
   int pixIndex = 0;
   int pixSize = 0;
+  
   for (int i = 0; i < objects.length; i++) {
    
        if (objects[i].drawOrder == row) {
@@ -240,25 +242,30 @@ void drawRow(float cameraX,
              float cameraY,
              float cameraZ,
              float cameraFocalDistance,
-             float cameraAngle,
              float cameraFocalRange,
              float pivotDistance, 
-             int screenY) {
+             int screenY,
+             float cos,  // Math.cos(cameraAngle)
+             float sin,  // Math.sin(cameraAngle)
+             float cosLeft, // Math.cos(cameraAngle - Math.PI/2)
+             float sinLeft, // Math.sin(cameraAngle - Math.PI/2)
+             float cosRight, // Math.cos(cameraAngle + Math.PI/2)
+             float sinRight, // Math.sin(cameraAngle + Math.PI/2)
+             float scanLineStep) // = 1.0 / (cameraFocalRange * 2.0);
+             {
                  
         float rayDistance = cameraZ / screenY / cameraFocalDistance;
     
-        float rayIntersectionX = (float)(cameraX + Math.cos(cameraAngle) * rayDistance - Math.cos(cameraAngle)*pivotDistance);
-        float rayIntersectionY = (float)(cameraY + Math.sin(cameraAngle) * rayDistance - Math.sin(cameraAngle)*pivotDistance);
+        float rayIntersectionX = cameraX + cos * rayDistance - cos * pivotDistance;
+        float rayIntersectionY = cameraY + sin * rayDistance - sin * pivotDistance;
  
         float scanLineHalfLength = cameraFocalRange * rayDistance / cameraFocalDistance;
        
-        float scanLineStartX =  (float)(rayIntersectionX + Math.cos(cameraAngle - Math.PI/2) * scanLineHalfLength);
-        float scanLineStartY = (float)(rayIntersectionY + Math.sin(cameraAngle - Math.PI/2) * scanLineHalfLength);
+        float scanLineStartX = rayIntersectionX + cosLeft * scanLineHalfLength;
+        float scanLineStartY = rayIntersectionY + sinLeft * scanLineHalfLength;
         
-        float scanLineEndX =  (float)(rayIntersectionX + Math.cos(cameraAngle + Math.PI/2) * scanLineHalfLength);
-        float  scanLineEndY = (float)(rayIntersectionY + Math.sin(cameraAngle + Math.PI/2) * scanLineHalfLength);
-         
-        float scanLineStep = 1.0 / (cameraFocalRange * 2.0);
+        float scanLineEndX = rayIntersectionX + cosRight * scanLineHalfLength;
+        float scanLineEndY = rayIntersectionY + sinRight * scanLineHalfLength;
            
         float texelX = scanLineStartX;
         float texelY = scanLineStartY;
@@ -270,23 +277,17 @@ void drawRow(float cameraX,
         float stepY = scanLineYStep;
         
         int u,v;
- 
         int row = (screenY+240)*640;
-             
+            
         for (int screenX = 0; screenX < 640; screenX++) {
-        
             u = (int)(Math.abs(texelX)) % 160;
             v = (int)(Math.abs(texelY)) % 160;
-                            
             pixels[row] = grassImage.pixels[(u * 160)+v];   
-            
             row++;
-                    
             texelX += stepX;
             texelY += stepY;
         }
-                                 
-}
+ }
  
 float ride = 0;
 float cn = 0;
@@ -301,19 +302,28 @@ void draw() {  // this is run repeatedly.
     for (int i = 0; i < halfScreen; i++) {
       pixels[i] = 0xffaaffff; 
     }
-      
-    for (int y = 1; y < 240; y++) {
+        
+    float cos = (float)Math.cos(camAngle);
+    float sin = (float)Math.sin(camAngle);
+    float cosLeft = (float)Math.cos(camAngle - Math.PI/2);
+    float sinLeft = (float)Math.sin(camAngle - Math.PI/2);
+    float cosRight = (float)Math.cos(camAngle + Math.PI/2);
+    float sinRight = (float)Math.sin(camAngle + Math.PI/2);
+    float cameraFocalRange = 320f;
+    float scanLineStep = 1f / (cameraFocalRange * 2f);
+    
+    projectObjects(camx,camy,3027050f,320f,320f,240f,cos,sin);
+        
+    for (int y = 1; y < 480; y++) {
       //15270500f
-      projectObjects(camx,camy,3027050f,320f,camAngle,320f,240f);
-      drawRow(camx,camy,3027050f,320f,camAngle,320f,0f,y);
-      drawObjectsForRow(y);
+     if (y < 240) {
+       drawRow(camx,camy,3027050f,320f,320f,0f,y,cos,sin,cosLeft,sinLeft,cosRight,sinRight,scanLineStep);
+     }
+     drawObjectsForRow(y);
     }
     
     drawDebugMap();
-    draw2dSprite(320,
-                  50,
-                  ride,
-                  21);
+//    draw2dSprite(320,50,128,2);
     
     ride += 1f;
     if (ride > 256) ride = 16;
@@ -331,12 +341,13 @@ void draw() {  // this is run repeatedly.
 
 class DisplayObject {
  
-     public float x,y,z, size;  // map coordinates, size = rectangle side in px
+     public float x,y,z, size;  // map coordinates, size = square size in px
      public float sx,sy;
      public float px,py,pz,psize;  // projected screen coordinates
-     public int drawOrder = -1; // -1 invisible, otherwise row to drawn on
+     public int drawOrder = -1; // -1 invisible, otherwise row to draw to
      public int spriteIndex;
      public int debugx,debugy;
+     public float offset;
   
 }
 

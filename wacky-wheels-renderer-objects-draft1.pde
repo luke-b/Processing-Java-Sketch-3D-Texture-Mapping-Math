@@ -146,6 +146,7 @@ void projectObjects(float cameraX,
                     float cameraFocalDistance,
                     float cameraFocalRange,
                     float cameraFocalRangeY,
+                    float pivotDistance,
                     float cos,
                     float sin) {
  
@@ -154,8 +155,8 @@ void projectObjects(float cameraX,
   for (int i = 0; i < objects.length; i++) {
    
     o = objects[i];
-    o.px = cos * ( o.x - cameraY ) - sin * ( o.y - cameraX );  // rotate by camera angle - camera X and Y switched intentionally ...
-    o.py = sin * ( o.x - cameraY ) + cos * ( o.y - cameraX );
+    o.px = cos * ( o.x - cameraY  + sin * pivotDistance ) - sin * ( o.y - cameraX + cos * pivotDistance) ;  // rotate by camera angle - camera X and Y switched intentionally ...
+    o.py = sin * ( o.x - cameraY  + sin * pivotDistance ) + cos * ( o.y - cameraX + cos * pivotDistance);
     o.debugx = (int)o.px;
     o.debugy = (int)o.py;
     
@@ -312,12 +313,12 @@ void draw() {  // this is run repeatedly.
     float cameraFocalRange = 320f;
     float scanLineStep = 1f / (cameraFocalRange * 2f);
     
-    projectObjects(camx,camy,3027050f,320f,320f,240f,cos,sin);
+    projectObjects(camx,camy,3027050f,320f,320f,240f,60f,cos,sin);
         
     for (int y = 1; y < 480; y++) {
       //15270500f
      if (y < 240) {
-       drawRow(camx,camy,3027050f,320f,320f,0f,y,cos,sin,cosLeft,sinLeft,cosRight,sinRight,scanLineStep);
+       drawRow(camx,camy,3027050f,320f,320f,60f,y,cos,sin,cosLeft,sinLeft,cosRight,sinRight,scanLineStep);
      }
      drawObjectsForRow(y);
     }

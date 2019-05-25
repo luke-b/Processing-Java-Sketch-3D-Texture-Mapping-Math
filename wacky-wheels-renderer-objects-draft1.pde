@@ -314,8 +314,8 @@ void draw() {  // this is run repeatedly.
     float sinRight = (float)Math.sin(camAngle + Math.PI/2);
     float cameraFocalRange = 320f;
     float scanLineStep = 1f / (cameraFocalRange * 2f);
-    float cosPivot = cos * 60f; // pivot 60f (3rd person camera pivot distance)
-    float sinPivot = sin * 60f;
+    float cosPivot = cos * 52f; // pivot 60f (3rd person camera pivot distance)
+    float sinPivot = sin * 52f;
     
     projectObjects(camx,camy,3027050f,320f,320f,240f,cos,sin,cosPivot,sinPivot);
         
@@ -328,7 +328,7 @@ void draw() {  // this is run repeatedly.
     }
     
     drawDebugMap();
-//    draw2dSprite(320,50,128,2);
+    draw2dSprite(320-128,480-200,256,0);
     
     ride += 1f;
     if (ride > 256) ride = 16;

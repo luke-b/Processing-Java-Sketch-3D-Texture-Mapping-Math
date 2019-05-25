@@ -146,17 +146,18 @@ void projectObjects(float cameraX,
                     float cameraFocalDistance,
                     float cameraFocalRange,
                     float cameraFocalRangeY,
-                    float pivotDistance,
                     float cos,
-                    float sin) {
+                    float sin,
+                    float cosPivot,
+                    float sinPivot) {
  
   DisplayObject o;
                
   for (int i = 0; i < objects.length; i++) {
    
     o = objects[i];
-    o.px = cos * ( o.x - cameraY  + sin * pivotDistance ) - sin * ( o.y - cameraX + cos * pivotDistance) ;  // rotate by camera angle - camera X and Y switched intentionally ...
-    o.py = sin * ( o.x - cameraY  + sin * pivotDistance ) + cos * ( o.y - cameraX + cos * pivotDistance);
+    o.px = cos * ( o.x - cameraY  + sinPivot ) - sin * ( o.y - cameraX + cosPivot) ;  // rotate by camera angle - camera X and Y switched intentionally ...
+    o.py = sin * ( o.x - cameraY  + sinPivot ) + cos * ( o.y - cameraX + cosPivot);
     o.debugx = (int)o.px;
     o.debugy = (int)o.py;
     
@@ -244,7 +245,6 @@ void drawRow(float cameraX,
              float cameraZ,
              float cameraFocalDistance,
              float cameraFocalRange,
-             float pivotDistance, 
              int screenY,
              float cos,  // Math.cos(cameraAngle)
              float sin,  // Math.sin(cameraAngle)
@@ -252,13 +252,15 @@ void drawRow(float cameraX,
              float sinLeft, // Math.sin(cameraAngle - Math.PI/2)
              float cosRight, // Math.cos(cameraAngle + Math.PI/2)
              float sinRight, // Math.sin(cameraAngle + Math.PI/2)
+             float cosPivot,
+             float sinPivot,
              float scanLineStep) // = 1.0 / (cameraFocalRange * 2.0);
              {
                  
         float rayDistance = cameraZ / screenY / cameraFocalDistance;
     
-        float rayIntersectionX = cameraX + cos * rayDistance - cos * pivotDistance;
-        float rayIntersectionY = cameraY + sin * rayDistance - sin * pivotDistance;
+        float rayIntersectionX = cameraX + cos * rayDistance - cosPivot;
+        float rayIntersectionY = cameraY + sin * rayDistance - sinPivot;
  
         float scanLineHalfLength = cameraFocalRange * rayDistance / cameraFocalDistance;
        
@@ -312,13 +314,15 @@ void draw() {  // this is run repeatedly.
     float sinRight = (float)Math.sin(camAngle + Math.PI/2);
     float cameraFocalRange = 320f;
     float scanLineStep = 1f / (cameraFocalRange * 2f);
+    float cosPivot = cos * 60f; // pivot 60f (3rd person camera pivot distance)
+    float sinPivot = sin * 60f;
     
-    projectObjects(camx,camy,3027050f,320f,320f,240f,60f,cos,sin);
+    projectObjects(camx,camy,3027050f,320f,320f,240f,cos,sin,cosPivot,sinPivot);
         
     for (int y = 1; y < 480; y++) {
       //15270500f
      if (y < 240) {
-       drawRow(camx,camy,3027050f,320f,320f,60f,y,cos,sin,cosLeft,sinLeft,cosRight,sinRight,scanLineStep);
+       drawRow(camx,camy,3027050f,320f,320f,y,cos,sin,cosLeft,sinLeft,cosRight,sinRight,cosPivot,sinPivot,scanLineStep);
      }
      drawObjectsForRow(y);
     }
